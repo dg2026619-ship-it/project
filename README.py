@@ -1,5 +1,4 @@
 # project
-Web VPython 3.2
 
 # 1. 5x5 바둑판 만들기
 board = [
@@ -52,4 +51,3 @@ while True:
             current_player = "○" if current_player == "●" else "●"
         else:
             print("\n❌ 이미 돌이 있는 자리입니다!")
-        
