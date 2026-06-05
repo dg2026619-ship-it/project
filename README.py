@@ -1,53 +1,59 @@
 # project
 
-# 1. 5x5 바둑판 만들기
-board = [
-    ["+", "+", "+", "+", "+"],
-    ["+", "+", "+", "+", "+"],
-    ["+", "+", "+", "+", "+"],
-    ["+", "+", "+", "+", "+"],
-    ["+", "+", "+", "+", "+"]
-]
-
-# 현재 커서 위치 (2, 2) 및 시작 플레이어
-cursor_x, cursor_y = 2, 2
-current_player = "●"
+# 1. 바둑판과 초기 설정
+board = [["+"] * 5 for _ in range(5)]
+cx, cy = 2, 2
+turn = "●"
 
 while True:
-    # 에러 나는 화면 지우기(os.system)를 빼고, 대신 구분선을 길게 그어줍니다.
-    print("\n" + "="*30)
-    print("🎮 [w:위] [s:아래] [a:왼쪽] [d:오른쪽] [공백없이 엔터: 돌 놓기]")
-    print(f"현재 차례: {current_player}")
-    print("="*30)
+    print(f"\n현재 차례: {turn} [w,a,s,d: 이동 / 엔터: 돌놓기]")
     
-    # 2. 바둑판 출력 (내 위치는 [ ]로 표시)
+    # 2. 바둑판 출력
     for r in range(5):
-        row_str = []
-        for c in range(5):
-            if r == cursor_y and c == cursor_x:
-                row_str.append(f"[{board[r][c]}]") # 현재 커서 위치
-            else:
-                row_str.append(f" {board[r][c]} ")
-        print("".join(row_str))
+        row = [f"[{board[r][c]}]" if r == cy and c == cx else f" {board[r][c]} " for c in range(5)]
+        print("".join(row))
         
-    # 3. 키보드 입력 받기
-    key = input("\n움직일 키 입력 후 엔터: ").strip().lower()
+    key = input("입력: ").strip().lower()
     
-    # 4. 방향키 이동 계산
-    if key == 'w' and cursor_y > 0:
-        cursor_y -= 1
-    elif key == 's' and cursor_y < 4:
-        cursor_y += 1
-    elif key == 'a' and cursor_x > 0:
-        cursor_x -= 1
-    elif key == 'd' and cursor_x < 4:
-        cursor_x += 1
+    # 3. 이동 처리
+    if key == 'w': cy = max(0, cy - 1)
+    elif key == 's': cy = min(4, cy + 1)
+    elif key == 'a': cx = max(0, cx - 1)
+    elif key == 'd': cx = min(4, cx + 1)
         
-    # 5. 그냥 엔터만 치면 그 자리에 돌 놓기
+    # 4. 돌 놓기
     elif key == "":
-        if board[cursor_y][cursor_x] == "+":
-            board[cursor_y][cursor_x] = current_player
-            # 차례 바꾸기
-            current_player = "○" if current_player == "●" else "●"
-        else:
-            print("\n❌ 이미 돌이 있는 자리입니다!")
+        if board[cy][cx] == "+":
+            board[cy][cx] = turn
+            
+            # 5. 초간단 승리 체크 (글자 이어붙여서 찾기!)
+            won = False
+            lines = []
+
+            # 가로 줄들을 문자열로 합치기 (예: "+++●●")
+            for r in range(5):
+                lines.append("".join(board[r]))
+                
+            # 세로 줄들을 문자열로 합치기
+            for c in range(5):
+                lines.append("".join([board[r][c] for r in range(5)]))
+                
+            # 대각선 줄들을 문자열로 합치기 (필요한 대각선만 쏙쏙)
+            lines.append("".join([board[i][i] for i in range(5)]))        # ↘ 중심 대각선
+            lines.append("".join([board[i][4-i] for i in range(5)]))      # ↙ 중심 대각선
+            lines.append("".join([board[i][i+1] for i in range(4)]))      # ↘ 위쪽 대각선
+            lines.append("".join([board[i+1][i] for i in range(4)]))      # ↘ 아래쪽 대각선
+            lines.append("".join([board[i][3-i] for i in range(4)]))      # ↙ 위쪽 대각선
+            lines.append("".join([board[i+1][4-i] for i in range(4)]))    # ↙ 아래쪽 대각선
+
+            # 만든 줄 중에 플레이어 돌이 3개 연속("●●●" 또는 "○○○")으로 들어있는지 검사!
+            target = turn * 3  # "●●●" 또는 "○○○"
+            for line in lines:
+                if target in line:
+                    won = True
+
+            if won:
+                print(f"\n🎉 {turn} 승리! 게임을 종료합니다.")
+                break
+                
+            turn = "○" if turn == "●" else "●"
