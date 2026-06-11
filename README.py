@@ -39,4 +39,3 @@ while True:
                 break
                 
             turn = "○" if turn == "●" else "●"
-            turn = "○" if turn == "●" else "●"
