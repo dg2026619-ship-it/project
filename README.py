@@ -7,4 +7,4 @@ while True :
     if 'c' in k:    
         b.color = color.red
     else:   
-        b.color = color.white
+        b.color = color.blue
